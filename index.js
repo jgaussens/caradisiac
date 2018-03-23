@@ -24,6 +24,9 @@ app.use(function(req, res, next) {
 //creation of the index: $CURL -XPUT http://localhost:9200/cars
 app.get('/populate', function (req, res) {
 
+
+//if error of storage curl -XPUT 'localhost:9200/my_index/_settings' -d '{ "index" : { "blocks": { "read_only_allow_delete": "false"}}}'
+console.log("dzad");
     async function getApiBrands() {
         const brands = await getBrands();
         return brands;
@@ -32,6 +35,7 @@ app.get('/populate', function (req, res) {
     getApiBrands().then(brands => {
         brands.forEach(async brand => {
             const models = await getModels(brand)
+            console.log(models);
             models.forEach(model => {
                 client.create({
                     index: 'cars',
@@ -54,6 +58,8 @@ app.listen(6969, function () {
 
 
 /*older functions */
+
+/*
 async function getBrands_(){
 	
 	return await getBrands();
@@ -89,6 +95,6 @@ getBrands_().then(function(result){
 	})
 	
 })
-
+*/
 
 

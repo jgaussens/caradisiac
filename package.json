@@ -20,6 +20,8 @@
   },
   "homepage": "https://github.com/jgaussens/caradisiac#readme",
   "dependencies": {
-    "node-car-api": "github:92bondstreet/node-car-api"
+    "elasticsearch": "^14.2.1",
+    "express": "^4.16.3",
+    "node-car-api": "git+https://github.com/92bondstreet/node-car-api.git"
   }
 }
