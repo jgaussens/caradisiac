@@ -6,8 +6,6 @@ const app = express();
 var elasticsearch = require('elasticsearch');
 
 
-//Main functions
-
 var client = new elasticsearch.Client({
     host: 'localhost:9200'
 })
@@ -22,11 +20,22 @@ app.use(function(req, res, next) {
 
 
 //creation of the index: $CURL -XPUT http://localhost:9200/cars
+
+/* Experienced a problem of storage for '/populate' because of my low-storage on my computer.
+	If this error happends:
+	
+		Launch this command:
+		curl -XPUT -H "Content-Type: application/json" http://localhost:9200/cars/_settings -d '{"index.blocks.read_only_allow_delete": null}'
+	
+	
+	This works for a moment, but comes back after a few indexing. Didn't manage to insert all the models due to that.
+*/
+
+
+
+/*Populate Endpoint */
 app.get('/populate', function (req, res) {
 
-
-//if error of storage curl -XPUT 'localhost:9200/my_index/_settings' -d '{ "index" : { "blocks": { "read_only_allow_delete": "false"}}}'
-console.log("dzad");
     async function getApiBrands() {
         const brands = await getBrands();
         return brands;
@@ -40,11 +49,15 @@ console.log("dzad");
                 client.create({
                     index: 'cars',
                     type: 'model',
-                    id: model.uuid,
+                    id: model.uuid, //wasn't present in the previous version of node-car-api, had to update
                     body: model
                 }, function (error, response) {
                     if(error) {
+                    	console.log("nop");
                         console.log(error);
+                    }
+                    else{
+	                    console.log("ok");
                     }
                 })
             })
@@ -55,6 +68,37 @@ console.log("dzad");
 app.listen(6969, function () {
     console.log('Express server is listening on port 6969!')
 });
+
+
+
+
+/* Suv Endpoint */
+app.get('/suv', function (req, res) {
+    var results = []
+    client.search({
+        index: 'cars',
+        type: 'model',
+        body: {
+            size: req.params.size,
+            offset: req.params.offset,
+            query: {
+                match_all: {},
+            },
+            sort: {
+                "volume.keyword": {
+                    order: "desc" 
+                }
+            }
+        }
+    }).then(res => {
+        res.hits.hits.forEach(model => {
+            results.push(model['_source']);
+        });
+    }).then(() => {
+        res.json(results);
+    });
+})
+
 
 
 /*older functions */
